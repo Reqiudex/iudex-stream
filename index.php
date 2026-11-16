@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="images/Mikuiudex.png">
     <title>Iudex Web Oficial</title>
+    <meta name="description" content="Web oficial de Iudex/Reqiudex: redes, horario de directos y cuenta atrás para el próximo stream.">
+    <meta name="theme-color" content="#000000">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <style>
         :root {
@@ -1038,6 +1041,79 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        /* ===== Pulido móvil y de carga ===== */
+        .video-background {
+            background: radial-gradient(120% 80% at 20% 10%, rgba(255, 127, 0, 0.28), transparent 60%),
+                radial-gradient(100% 70% at 90% 90%, rgba(78, 205, 196, 0.18), transparent 60%), var(--bg-color);
+        }
+
+        .video-background iframe:not([src]) { display: none; }
+
+        .video-facade {
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            cursor: pointer;
+            background: #111 center / cover no-repeat;
+        }
+
+        .video-facade.tiktok { background: linear-gradient(135deg, #25f4ee 0%, #111 45%, #fe2c55 100%); }
+
+        .video-facade-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 64px;
+            height: 64px;
+            margin: -32px 0 0 -32px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            font-size: 34px;
+            border: 2px solid var(--accent-color);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .video-facade:hover .video-facade-play,
+        .video-facade:focus-visible .video-facade-play { transform: scale(1.1); background: var(--accent-color); }
+
+        .creator-avatar--ph {
+            display: grid;
+            place-items: center;
+            background: rgba(255, 127, 0, 0.18);
+            color: var(--accent-color);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .footer-btn, .creator-link, .video-link, .donation-btn { min-height: 44px; }
+        .creator-link, .video-link { display: inline-flex; align-items: center; justify-content: center; }
+
+        .theme-toggle:focus-visible, .social-button:focus-visible, .surprise-btn:focus-visible,
+        .footer-btn:focus-visible, .creator-link:focus-visible, .video-link:focus-visible {
+            outline: 3px solid var(--accent-color);
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 768px) {
+            /* primero el perfil y las redes; el video recomendado va después */
+            body { display: flex; flex-direction: column; }
+            .container { order: 1; width: 100%; }
+            .video-section { order: 2; width: auto; margin: 0 15px 20px; }
+            .footer { order: 3; }
+            .video-overlay { backdrop-filter: none; -webkit-backdrop-filter: none; }
+            .surprise-btn { padding: 10px 14px; font-size: 0.85rem; opacity: 0.94; }
+            .social-button { width: 100%; max-width: 150px; margin: 0 auto; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+        }
     </style>
 </head>
 
@@ -1049,7 +1125,7 @@
     </div>
 
     <!-- Theme Toggle -->
-    <div class="theme-toggle" id="themeToggle">
+    <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Cambiar entre tema claro y oscuro">
         <i class="bi bi-sun-fill" id="themeIcon"></i>
     </div>
 
@@ -1063,8 +1139,8 @@
 
     <!-- Video Background -->
     <div class="video-background">
-        <iframe
-            src="https://www.youtube.com/embed/0EWcxtOAJE4?autoplay=1&mute=1&loop=1&playlist=0EWcxtOAJE4&controls=0&showinfo=0&rel=0&modestbranding=1"
+        <iframe id="bgVideo" title="Video de fondo" tabindex="-1" aria-hidden="true"
+            data-src="https://www.youtube.com/embed/0EWcxtOAJE4?autoplay=1&mute=1&loop=1&playlist=0EWcxtOAJE4&controls=0&showinfo=0&rel=0&modestbranding=1"
             frameborder="0"
             allow="autoplay; encrypted-media"
             allowfullscreen>
@@ -1081,7 +1157,7 @@
             <!-- El iframe se insertará dinámicamente aquí -->
         </div>
         <div class="video-description" id="videoDescription">Cargando recomendación...</div>
-        <a href="#" class="video-link" id="videoLink" target="_blank">Ver en YouTube</a>
+        <a href="#" class="video-link" id="videoLink" target="_blank" rel="noopener">Ver en YouTube</a>
     </div>
 
     <div class="container">
@@ -1099,35 +1175,35 @@
         <!-- Buttons Section -->
         <div class="buttons-section">
             <div class="buttons-grid">
-                <a href="https://www.twitch.tv/reqiudex" class="social-button" target="_blank">
+                <a href="https://www.twitch.tv/reqiudex" class="social-button" target="_blank" rel="noopener">
                     <i class="bi bi-twitch"></i>
                     <span>Twitch</span>
                 </a>
-                <a href="https://kick.com/reqiudex" class="social-button" target="_blank">
+                <a href="https://kick.com/reqiudex" class="social-button" target="_blank" rel="noopener">
                     <i class="bi bi-controller"></i>
                     <span>Kick</span>
                 </a>
-                <a href="https://www.youtube.com/channel/UC8AAKJc_2ZCkMQA9QwqXpig" class="social-button" target="_blank">
+                <a href="https://www.youtube.com/channel/UC8AAKJc_2ZCkMQA9QwqXpig" class="social-button" target="_blank" rel="noopener">
                     <i class="bi bi-youtube"></i>
                     <span>YouTube</span>
                 </a>
-                <a href="https://discord.gg/xwCzNw7set" class="social-button" target="_blank">
+                <a href="https://discord.gg/xwCzNw7set" class="social-button" target="_blank" rel="noopener">
                     <i class="bi bi-discord"></i>
                     <span>Discord</span>
                 </a>
-                <a href="https://chat.whatsapp.com/CnbgpXwskoTD0s612dJrvs" class="social-button" target="_blank">
+                <a href="https://chat.whatsapp.com/CnbgpXwskoTD0s612dJrvs" class="social-button" target="_blank" rel="noopener">
                     <i class="bi bi-whatsapp"></i>
                     <span>WhatsApp</span>
                 </a>
-                <a href="https://x.com/ReqIudex" class="social-button" target="_blank">
+                <a href="https://x.com/ReqIudex" class="social-button" target="_blank" rel="noopener">
                     <i class="bi bi-twitter-x"></i>
                     <span>Twitter</span>
                 </a>
-                <a href="https://tiktok.me/group/ZMHsuGnSEGA48-SkpbY/" class="social-button" target="_blank">
+                <a href="https://tiktok.me/group/ZMHsuGnSEGA48-SkpbY/" class="social-button" target="_blank" rel="noopener">
                     <i class="bi bi-people-fill"></i>
                     <span>Grupo TikTok</span>
                 </a>
-                <a href="https://www.tiktok.com/@reqiudex" class="social-button" target="_blank">
+                <a href="https://www.tiktok.com/@reqiudex" class="social-button" target="_blank" rel="noopener">
                     <i class="bi bi-tiktok"></i>
                     <span>TikTok</span>
                 </a>
@@ -1258,11 +1334,11 @@
     <!-- Donation Modal -->
     <div class="donation-modal" id="donationModal">
         <div class="donation-content">
-            <button class="close-btn" onclick="closeDonationModal()">&times;</button>
+            <button class="close-btn" onclick="closeDonationModal()" aria-label="Cerrar">&times;</button>
             <div style="text-align: center;">
                 <h2 style="color: var(--accent-color); margin-bottom: 20px;">💰 Donaciones</h2>
                 <p style="margin-bottom: 20px; color: var(--text-color);">¡Gracias por apoyar el contenido!</p>
-                <img src="images/QR.jpeg" alt="QR de Donaciones" class="qr-image">
+                <img src="images/QR.jpeg" alt="QR de Donaciones" class="qr-image" loading="lazy" decoding="async">
                 <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">Escanea el código QR para donar</p>
             </div>
         </div>
@@ -1281,20 +1357,20 @@
 
             <div class="footer-section">
                 <h3>🤝 Colaboraciones</h3>
-                <a href="https://wa.me/59170314442?text=Hola%20Iudex,%20me%20gustaría%20colaborar%20contigo..." class="footer-btn" target="_blank">
+                <a href="https://wa.me/59170314442?text=Hola%20Iudex,%20me%20gustaría%20colaborar%20contigo..." class="footer-btn" target="_blank" rel="noopener">
                     <i class="bi bi-briefcase"></i> Colaboraciones
                 </a>
-                <a href="https://wa.me/59170314442?text=Hola%20Iudex,%20tengo%20una%20sugerencia%20para%20ti..." class="footer-btn" target="_blank">
+                <a href="https://wa.me/59170314442?text=Hola%20Iudex,%20tengo%20una%20sugerencia%20para%20ti..." class="footer-btn" target="_blank" rel="noopener">
                     <i class="bi bi-lightbulb"></i> Sugerencias
                 </a>
             </div>
 
             <div class="footer-section">
                 <h3>📞 Contacto</h3>
-                <a href="https://wa.me/78194737" class="footer-btn" target="_blank">
+                <a href="https://wa.me/78194737" class="footer-btn" target="_blank" rel="noopener">
                     <i class="bi bi-envelope"></i> Contacto Rápido
                 </a>
-                <a href="https://wa.me/78194737?text=Buenas%20tardes,%20necesito%20un%20servicio%20de%20desarrollo%20web" class="footer-btn" target="_blank">
+                <a href="https://wa.me/78194737?text=Buenas%20tardes,%20necesito%20un%20servicio%20de%20desarrollo%20web" class="footer-btn" target="_blank" rel="noopener">
                     <i class="bi bi-code-slash"></i> Desarrollador
                 </a>
             </div>
@@ -1313,10 +1389,28 @@
         let currentTheme = 'dark';
 
         // Loading Screen
+        // Se quita en cuanto la página es utilizable (antes esperaba a que cargara todo + 2 s)
+        (function() {
+            const hide = () => document.getElementById('loadingScreen').classList.add('hidden');
+            if (document.readyState !== 'loading') setTimeout(hide, 500);
+            else document.addEventListener('DOMContentLoaded', () => setTimeout(hide, 500));
+        })();
+
+        // Video de fondo: solo en pantallas grandes, sin ahorro de datos ni movimiento reducido,
+        // y después de que cargue la página (el reproductor de YouTube pesa varios MB).
         window.addEventListener('load', function() {
+            const conn = navigator.connection || {};
+            const ok = window.matchMedia('(min-width: 769px)').matches &&
+                !window.matchMedia('(prefers-reduced-motion: reduce)').matches &&
+                !conn.saveData && !/(^|-)(2g|3g)$/.test(conn.effectiveType || '');
+            if (!ok) return;
             setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-            }, 2000);
+                const f = document.getElementById('bgVideo');
+                f.src = f.dataset.src;
+            }, 1200);
+        });
+        document.getElementById('themeToggle').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); }
         });
 
         // Theme Toggle
@@ -1361,7 +1455,8 @@
             const maxY = window.innerHeight - btn.offsetHeight - 20;
 
             const randomX = Math.floor(Math.random() * maxX) + 10;
-            const randomY = Math.floor(Math.random() * maxY) + 10;
+            let randomY = Math.floor(Math.random() * maxY) + 10;
+            if (window.innerWidth <= 768) randomY = window.innerHeight - btn.offsetHeight - 16 - Math.floor(Math.random() * 40);
 
             btn.style.left = randomX + 'px';
             btn.style.top = randomY + 'px';
@@ -1539,7 +1634,7 @@
             },
             {
                 type: 'youtube',
-                id: 'nhgEuhL0jxI&',
+                id: 'nhgEuhL0jxI',
                 title: 'Contenido especial',
                 description: 'Algo que te va a gustar'
             },
@@ -1571,13 +1666,34 @@
 
             videoDescription.textContent = randomVideo.description;
 
-            if (randomVideo.type === 'youtube') {
-                videoPlayer.innerHTML = `<iframe src="https://www.youtube.com/embed/${randomVideo.id}?autoplay=0&modestbranding=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            // No se carga el reproductor hasta que la persona toca: ahorra ~1 MB y evita errores a la vista
+            const isYT = randomVideo.type === 'youtube';
+            const embed = isYT ?
+                `https://www.youtube-nocookie.com/embed/${randomVideo.id}?autoplay=1&modestbranding=1&rel=0` :
+                `https://www.tiktok.com/embed/v2/${randomVideo.id}`;
+            videoPlayer.innerHTML = '';
+            const facade = document.createElement('button');
+            facade.type = 'button';
+            facade.className = 'video-facade' + (isYT ? '' : ' tiktok');
+            facade.setAttribute('aria-label', 'Reproducir: ' + randomVideo.title);
+            if (isYT) facade.style.backgroundImage = `url(https://i.ytimg.com/vi/${randomVideo.id}/hqdefault.jpg)`;
+            facade.innerHTML = '<span class="video-facade-play"><i class="bi bi-play-fill"></i></span>';
+            facade.addEventListener('click', function() {
+                const f = document.createElement('iframe');
+                f.src = embed;
+                f.title = randomVideo.title;
+                f.setAttribute('frameborder', '0');
+                f.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                f.allowFullscreen = true;
+                videoPlayer.innerHTML = '';
+                videoPlayer.appendChild(f);
+            });
+            videoPlayer.appendChild(facade);
+            if (isYT) {
                 videoLink.href = `https://youtu.be/${randomVideo.id}`;
                 videoLink.textContent = 'Ver en YouTube';
                 videoLink.className = 'video-link';
             } else {
-                videoPlayer.innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${randomVideo.id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                 videoLink.href = `https://www.tiktok.com/@i/video/${randomVideo.id}`;
                 videoLink.textContent = 'Ver en TikTok';
                 videoLink.className = 'video-link tiktok';
@@ -1631,11 +1747,19 @@
                 const card = document.createElement('div');
                 card.className = 'creator-card';
                 card.innerHTML = `
-                    <img src="${creator.avatar}" alt="${creator.name}" class="creator-avatar">
+                    <img src="${creator.avatar}" alt="" class="creator-avatar" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="80" height="80">
                     <div class="creator-name">${creator.name}</div>
                     <div class="creator-handle">${creator.handle}</div>
-                    <a href="${creator.link}" class="creator-link" target="_blank">Seguir</a>
+                    <a href="${creator.link}" class="creator-link" target="_blank" rel="noopener">Seguir</a>
                 `;
+                const img = card.querySelector('.creator-avatar');
+                img.addEventListener('error', function() {
+                    const ph = document.createElement('div');
+                    ph.className = 'creator-avatar creator-avatar--ph';
+                    ph.setAttribute('aria-hidden', 'true');
+                    ph.textContent = (creator.handle.replace('@', '')[0] || '?').toUpperCase();
+                    img.replaceWith(ph);
+                }, { once: true });
                 grid.appendChild(card);
             });
         }
